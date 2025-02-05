@@ -1,73 +1,71 @@
-
 document.getElementById('formulario').addEventListener('submit', cadastrarVeiculo);
 
-function cadastrarVeiculo(e){
-	
-	var modeloVeiculo = document.getElementById('modeloVeiculo').value;
-	var placaVeiculo = document.getElementById('placaVeiculo').value;
-	var horaEntrada = new Date();
+function cadastrarVeiculo(e) {
+    e.preventDefault();
 
-	if(!modeloVeiculo && !placaVeiculo){
-		
-		alert("Preencha todos os campos!");
-		return false;
-	} 
+    const modeloVeiculo = document.getElementById('modeloVeiculo').value.trim();
+    const placaVeiculo = document.getElementById('placaVeiculo').value.trim();
+    const horaEntrada = new Date();
 
-	var veiculo = {
-		modelo: modeloVeiculo,
-		placa: placaVeiculo,
-		hora: horaEntrada.getHours(),
-		minutos: horaEntrada.getMinutes()
-	};
+    if (!modeloVeiculo || !placaVeiculo) {
+        alert("Preencha todos os campos!");
+        return;
+    }
 
-	if(localStorage.getItem('patio') === null){
-		var veiculos = [];
-		veiculos.push(veiculo);
-		localStorage.setItem('patio', JSON.stringify(veiculos));
-	} else {
-		var veiculos = JSON.parse(localStorage.getItem('patio'));
-		veiculos.push(veiculo);
-		localStorage.setItem('patio', JSON.stringify(veiculos));
-	}
+    const modeloValido = /^[a-zA-Z0-9-]+$/.test(modeloVeiculo);
+    const placaValida = /^[a-zA-Z0-9-]+$/.test(placaVeiculo);
 
-	document.getElementById('formulario').reset();
+    if (!modeloValido) {
+        alert("Modelo do veículo contém caracteres inválidos!");
+        return;
+    }
 
-	mostraPatio();
+    if (!placaValida) {
+        alert("Placa do veículo contém caracteres inválidos!");
+        return;
+    }
 
-	e.preventDefault();
+    const veiculo = {
+        modelo: modeloVeiculo,
+        placa: placaVeiculo,
+        hora: horaEntrada.getHours(),
+        minutos: horaEntrada.getMinutes()
+    };
+
+    let veiculos = JSON.parse(localStorage.getItem('patio')) || [];
+    if (veiculos.some(v => v.placa === placaVeiculo)) {
+        alert("Veículo já registrado!");
+        return;
+    }
+
+    veiculos.push(veiculo);
+    localStorage.setItem('patio', JSON.stringify(veiculos));
+
+    document.getElementById('formulario').reset();
+    mostraPatio();
 }
 
-function removeVeiculo(placa){
-	var patio = JSON.parse(localStorage.getItem('patio'));
-	console.log(patio);
-
-	 for(var i = 0 ; i < patio.length; i++){
-		if(patio[i].placa == placa){
-			patio.splice(i, 1);
-		}
-	}
-
-	localStorage.setItem('patio', JSON.stringify(patio));
-
-	mostraPatio();
+function removeVeiculo(placa) {
+    let veiculos = JSON.parse(localStorage.getItem('patio')) || [];
+    veiculos = veiculos.filter(v => v.placa !== placa);
+    localStorage.setItem('patio', JSON.stringify(veiculos));
+    mostraPatio();
 }
 
-function mostraPatio(){
-	var veiculos = JSON.parse(localStorage.getItem('patio'));
-	var patioResultado = document.getElementById('resultados');
+function mostraPatio() {
+    const veiculos = JSON.parse(localStorage.getItem('patio')) || [];
+    const patioResultado = document.getElementById('resultados');
+    patioResultado.innerHTML = '';
 
-	patioResultado.innerHTML = '';
-
-	for(var i = 0; i < veiculos.length; i++){
-		var modelo = veiculos[i].modelo;
-		var placa = veiculos[i].placa;
-		var hora = veiculos[i].hora;
-		var minutos = veiculos[i].minutos;
-		 patioResultado.innerHTML += '<tr><td>'+ modelo + '</td>'+
-		 							 	  '<td>'+ placa + '</td>' +
-		 							 	  '<td>'+ hora + ':' + minutos + '</td>' +
-		 							 	  '<td><button onclick="removeVeiculo(\''+ placa +'\')" class="btn btn-danger">Remover</button></td>'+
-		 							 '</tr>';
-	}
+    veiculos.forEach(veiculo => {
+        const { modelo, placa, hora, minutos } = veiculo;
+        patioResultado.innerHTML += `
+            <tr>
+                <td>${modelo}</td>
+                <td>${placa}</td>
+                <td>${hora}:${minutos}</td>
+                <td><button onclick="removeVeiculo('${placa}')" class="btn btn-danger">Remover</button></td>
+            </tr>
+        `;
+    });
 }
-
