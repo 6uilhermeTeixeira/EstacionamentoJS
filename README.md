@@ -1,4 +1,4 @@
-# EstacionamentoJS
+# Estacionamento JS
 
 Este é um simples projeto de Software desenvolvido em JavaScript para Registro de Entrada e Saída de Veículos em um Estacionamento.
 
@@ -20,4 +20,4 @@ Este é um simples projeto de Software desenvolvido em JavaScript para Registro 
 1. Clone este repositório:
 
 ```bash
-git clone https://github.com/6uilhermeTeixeira/EstacionamentoJS.git
+git clone https://github.com/6uilhermeTeixeira/estacionamento-JS.git
